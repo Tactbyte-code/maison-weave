@@ -13,7 +13,6 @@ dist/
 # Payload CMS
 media/
 .payload/
-payload-types.ts
 
 # Environment variables
 .env
