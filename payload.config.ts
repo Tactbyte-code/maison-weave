@@ -1,27 +1,18 @@
+
 import { buildConfig } from "payload";
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
 import sharp from "sharp";
 
 import { Categories } from "./src/collections/Categories";
 import { Media } from "./src/collections/Media";
 import { Products } from "./src/collections/Products";
 
-import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
-
 export default buildConfig({
   admin: {
     user: "users",
   },
-
-  storage: [
-    vercelBlobStorage({
-      collections: {
-        media: true,
-      },
-      token: process.env.BLOB_READ_WRITE_TOKEN,
-    }),
-  ],
 
   typescript: {
     outputFile: "src/payload-types.ts",
@@ -41,6 +32,15 @@ export default buildConfig({
     Categories,
     Media,
     Products,
+  ],
+
+  plugins: [
+    vercelBlobStorage({
+      collections: {
+        media: true,
+      },
+      token: process.env.BLOB_READ_WRITE_TOKEN,
+    }),
   ],
 
   editor: lexicalEditor(),
