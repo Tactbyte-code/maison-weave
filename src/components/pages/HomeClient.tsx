@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
@@ -21,10 +21,8 @@ import {
 import { ProductCard } from "@/components/ProductCard";
 import { TexturedImage } from "@/components/TexturedImage";
 import { FEATURED_SLUGS, IMAGES, type CategorySummary } from "@/data/catalog";
-import {
-  useCategoriesQuery,
-  useProductsQuery,
-} from "@/hooks/useCatalogQueries";
+import { useCategoriesQuery } from "@/hooks/useCatalogQueries";
+import { usePayloadProductsQuery } from "@/hooks/usePayloadProducts";
 
 const MARQUEE_ITEMS = [
   "Private Label Manufacturing",
@@ -188,7 +186,7 @@ function CollectionsIndexSection() {
 
         <div className="mt-14" data-testid="category-index">
           {(categories || Array.from({ length: 11 })).map((cat, index) =>
-            categories && cat && typeof cat === 'object' && 'name' in cat ? (
+            categories && cat && typeof cat === "object" && "name" in cat ? (
               <Link
                 key={cat.name}
                 href={`/collections?category=${encodeURIComponent(cat.name)}`}
@@ -225,7 +223,7 @@ function CollectionsIndexSection() {
                 key={index}
                 className="h-20 animate-pulse border-t border-forest/10 bg-sand/40"
               />
-            )
+            ),
           )}
         </div>
       </div>
@@ -256,13 +254,17 @@ function CollectionsIndexSection() {
 }
 
 function SelectedPiecesSection() {
-  const { data: products } = useProductsQuery();
+  const { data: products } = usePayloadProductsQuery();
 
   const selected = useMemo(() => {
     if (!products) return null;
+
     return FEATURED_SLUGS.map((slug) =>
-      products.find((p) => p.slug === slug)
-    ).filter((p): p is NonNullable<typeof p> => Boolean(p));
+      products.find((product) => product.slug === slug),
+    ).filter(
+      (product): product is NonNullable<typeof product> =>
+        product !== undefined,
+    );
   }, [products]);
 
   return (
@@ -288,7 +290,7 @@ function SelectedPiecesSection() {
           {selected
             ? selected.map((product, index) => (
                 <ProductCard
-                  key={product.slug}
+                  key={product?.id}
                   product={product}
                   index={index}
                 />
