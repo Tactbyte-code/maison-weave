@@ -1,0 +1,158 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net: default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidUserProfile(data) {
+      return data.keys().hasAll(['uid', 'displayName', 'email', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'email', 'company', 'country', 'createdAt', 'updatedAt'])
+        && data.uid is string
+        && isValidId(data.uid)
+        && data.uid == request.auth.uid
+        && data.displayName is string
+        && data.displayName.size() >= 1
+        && data.displayName.size() <= 120
+        && data.email is string
+        && data.email.size() >= 3
+        && data.email.size() <= 160
+        && (!('company' in data) || (data.company is string && data.company.size() <= 120))
+        && (!('country' in data) || (data.country is string && data.country.size() <= 80))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidShortlistItem(data) {
+      return data.keys().hasAll(['userId', 'productSlug', 'productName', 'category', 'createdAt'])
+        && data.keys().hasOnly(['userId', 'productSlug', 'productName', 'category', 'notes', 'createdAt'])
+        && data.userId is string
+        && isValidId(data.userId)
+        && data.userId == request.auth.uid
+        && data.productSlug is string
+        && isValidId(data.productSlug)
+        && data.productSlug.size() >= 2
+        && data.productSlug.size() <= 120
+        && data.productName is string
+        && data.productName.size() >= 2
+        && data.productName.size() <= 120
+        && data.category is string
+        && data.category.size() >= 2
+        && data.category.size() <= 80
+        && (!('notes' in data) || (data.notes is string && data.notes.size() <= 400))
+        && data.createdAt is timestamp;
+    }
+
+    function isValidEnquiry(data) {
+      return data.keys().hasAll(['userId', 'name', 'email', 'category', 'message', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['userId', 'name', 'email', 'company', 'country', 'category', 'productName', 'message', 'status', 'createdAt', 'updatedAt'])
+        && data.userId is string
+        && isValidId(data.userId)
+        && data.userId == request.auth.uid
+        && data.name is string
+        && data.name.size() >= 2
+        && data.name.size() <= 120
+        && data.email is string
+        && data.email.size() >= 3
+        && data.email.size() <= 160
+        && (!('company' in data) || (data.company is string && data.company.size() <= 120))
+        && (!('country' in data) || (data.country is string && data.country.size() <= 80))
+        && data.category is string
+        && data.category.size() >= 2
+        && data.category.size() <= 80
+        && (!('productName' in data) || (data.productName is string && data.productName.size() <= 120))
+        && data.message is string
+        && data.message.size() >= 10
+        && data.message.size() <= 2000
+        && data.status is string
+        && data.status in ['submitted', 'withdrawn']
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isOwner(userId);
+      allow list: if false;
+      allow create: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId)
+        && isOwner(userId)
+        && isValidUserProfile(incoming())
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'email', 'company', 'country', 'updatedAt']);
+      allow delete: if false;
+
+      match /shortlist/{productSlug} {
+        allow get: if isValidId(userId) && isValidId(productSlug) && isOwner(userId);
+        allow list: if isValidId(userId) && isOwner(userId) && resource.data.userId == request.auth.uid;
+        allow create: if isValidId(userId)
+          && isValidId(productSlug)
+          && isOwner(userId)
+          && isValidShortlistItem(incoming())
+          && incoming().productSlug == productSlug
+          && incoming().createdAt == request.time
+          && exists(/databases/$(database)/documents/users/$(userId));
+        allow update: if isValidId(userId)
+          && isValidId(productSlug)
+          && isOwner(userId)
+          && isValidShortlistItem(incoming())
+          && incoming().userId == existing().userId
+          && incoming().productSlug == existing().productSlug
+          && incoming().createdAt == existing().createdAt
+          && incoming().diff(existing()).affectedKeys().hasOnly(['notes']);
+        allow delete: if isValidId(userId) && isValidId(productSlug) && isOwner(userId);
+      }
+    }
+
+    match /enquiries/{enquiryId} {
+      allow get: if isValidId(enquiryId) && isSignedIn() && existing().userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isValidId(enquiryId)
+        && isSignedIn()
+        && isValidEnquiry(incoming())
+        && incoming().status == 'submitted'
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(enquiryId)
+        && isSignedIn()
+        && existing().userId == request.auth.uid
+        && existing().status != 'withdrawn'
+        && isValidEnquiry(incoming())
+        && incoming().userId == existing().userId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          (incoming().status == 'withdrawn' && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt'])) ||
+          (incoming().status == existing().status && incoming().diff(existing()).affectedKeys().hasOnly(['message', 'company', 'country', 'updatedAt']))
+        );
+      allow delete: if false;
+    }
+  }
+}

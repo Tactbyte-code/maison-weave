@@ -1,0 +1,156 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated B2B partner profile isolated by user ID.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 160
+        },
+        "company": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "country": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "displayName", "email", "createdAt", "updatedAt"]
+    },
+    "ShortlistItem": {
+      "title": "ShortlistItem",
+      "description": "A catalog piece saved to an authenticated partner's shortlist.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "productSlug": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "productName": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "category": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 400
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["userId", "productSlug", "productName", "category", "createdAt"]
+    },
+    "Enquiry": {
+      "title": "Enquiry",
+      "description": "B2B textile manufacturing or product enquiry submitted by an authenticated partner.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 120
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "minLength": 3,
+          "maxLength": 160
+        },
+        "company": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "country": {
+          "type": "string",
+          "maxLength": 80
+        },
+        "category": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 80
+        },
+        "productName": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "message": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 2000
+        },
+        "status": {
+          "type": "string",
+          "enum": ["submitted", "withdrawn"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["userId", "name", "email", "category", "message", "status", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Private authenticated partner profile documents."
+    },
+    "/users/{userId}/shortlist/{productSlug}": {
+      "schema": { "$ref": "#/entities/ShortlistItem" },
+      "description": "Saved textile pieces for an authenticated partner."
+    },
+    "/enquiries/{enquiryId}": {
+      "schema": { "$ref": "#/entities/Enquiry" },
+      "description": "Private B2B textile enquiries created and read by their owning partner."
+    }
+  }
+}

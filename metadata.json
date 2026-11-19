@@ -1,0 +1,6 @@
+{
+  "name": "Maison Weave - Crafted Luxury Living",
+  "description": "Manufacturer and exporter of premium home textiles and decor. Private label manufacturing for brands, retailers and hospitality partners worldwide.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
