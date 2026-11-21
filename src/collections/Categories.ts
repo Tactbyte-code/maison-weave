@@ -27,6 +27,17 @@ export const Categories: CollectionConfig = {
       name: "description",
       type: "textarea",
     },
+
+    {
+
+  name: "image",
+  type: "upload",
+  relationTo: "media",
+  required: false,
+  admin: {
+    description: "Image displayed when hovering over a category.",
+  },
+},
     {
       name: "isActive",
       type: "checkbox",

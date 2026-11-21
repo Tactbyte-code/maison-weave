@@ -71,6 +71,9 @@ export interface Config {
     categories: Category;
     media: Media;
     products: Product;
+    homepage: Homepage;
+    footer: Footer;
+    about: About;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +85,9 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
+    about: AboutSelect<false> | AboutSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -159,6 +165,10 @@ export interface Category {
   name: string;
   slug: string;
   description?: string | null;
+  /**
+   * Image displayed when hovering over a category.
+   */
+  image?: (number | null) | Media;
   isActive?: boolean | null;
   /**
    * Lower numbers appear first.
@@ -211,9 +221,233 @@ export interface Product {
   }[];
   isActive?: boolean | null;
   /**
-   * Lower numbers appear first.
+   * Lower numbers appear first. The first 4 active products also appear in 'Selected pieces' on the homepage.
    */
   sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Edit the homepage here. Each tab is one section of the page, from top to bottom.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: number;
+  heroSubtitle: string;
+  heroTitle: string;
+  heroBackgroundImage: number | Media;
+  heroDescription: string;
+  heroButtons: {
+    label: string;
+    url: string;
+    style: 'gold' | 'outline-cream';
+    id?: string | null;
+  }[];
+  scrollItems: {
+    text: string;
+    id?: string | null;
+  }[];
+  runningTexts: {
+    text: string;
+    id?: string | null;
+  }[];
+  collectionsTitleStart?: string | null;
+  /**
+   * Shown in gold italics.
+   */
+  collectionsTitleHighlight?: string | null;
+  collectionsTitleEnd?: string | null;
+  collectionsLinkLabel?: string | null;
+  collectionsLinkUrl?: string | null;
+  selectedPiecesTitle?: string | null;
+  craftTitleStart?: string | null;
+  /**
+   * Shown in gold italics.
+   */
+  craftTitleHighlight?: string | null;
+  craftDescription?: string | null;
+  /**
+   * The checklist under the paragraph. If left empty, the standard four lines are shown.
+   */
+  craftBullets?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Large image. Upload portrait, at least 1200 x 1500 px.
+   */
+  craftMainImage?: (number | null) | Media;
+  /**
+   * Small overlapping image. Upload square, at least 1000 x 1000 px.
+   */
+  craftDetailImage?: (number | null) | Media;
+  craftButtonLabel?: string | null;
+  /**
+   * Page the button opens, for example /about.
+   */
+  craftButtonUrl?: string | null;
+  /**
+   * The section with the workshop photo and the Private Label button.
+   */
+  privateLabel?: {
+    eyebrow?: string | null;
+    headingPlain?: string | null;
+    headingGold?: string | null;
+    description?: string | null;
+    buttonText?: string | null;
+    /**
+     * Leave as it is unless you want the button to open a different page.
+     */
+    buttonLink?: string | null;
+    /**
+     * Landscape photo, at least 1600 x 1200 px. Other shapes are cropped, never stretched.
+     */
+    photo?: (number | null) | Media;
+  };
+  materialsHeading?: string | null;
+  /**
+   * Each one shows as a box. If left empty, the standard six are shown.
+   */
+  materialsList?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  ctaTitleStart?: string | null;
+  /**
+   * Shown in gold italics.
+   */
+  ctaTitleHighlight?: string | null;
+  ctaButtonLabel?: string | null;
+  ctaButtonLink?: string | null;
+  /**
+   * Shown on the second button. Clicking it opens an email to this address.
+   */
+  ctaEmail?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The footer at the bottom of every page. There is only one. The Collections column comes from Categories.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  /**
+   * Small square image shown next to the brand name, like a favicon. It replaces the gold weave symbol only. The name and tagline always stay. Use a square PNG, at least 200 x 200 px.
+   */
+  logo?: (number | null) | Media;
+  /**
+   * Small line under the brand name and in the bottom bar of the footer.
+   */
+  tagline?: string | null;
+  description?: string | null;
+  email?: string | null;
+  /**
+   * Include https:// at the start.
+   */
+  website?: string | null;
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Content of the About Us page. There is only one. Open it and edit it.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about".
+ */
+export interface About {
+  id: number;
+  titleLine1?: string | null;
+  titleLine2Start?: string | null;
+  /**
+   * The full stop after this word is added for you.
+   */
+  titleHighlight?: string | null;
+  intro?: string | null;
+  storyLabel?: string | null;
+  /**
+   * Portrait photo (3 by 4), at least 900 x 1200 px. It is cropped to fit, never stretched.
+   */
+  storyImage?: (number | null) | Media;
+  /**
+   * Add, remove or reorder paragraphs.
+   */
+  storyParagraphs?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Quote marks are added for you.
+   */
+  quote?: string | null;
+  commitmentsEyebrow?: string | null;
+  /**
+   * The number in front (Seven, Eight...) is added automatically from how many boxes you have below.
+   */
+  commitmentsTitleEnd?: string | null;
+  commitmentsHighlight?: string | null;
+  /**
+   * Add, remove or reorder boxes. The LAST box is always shown in dark green with the button inside it.
+   */
+  commitments?:
+    | {
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  commitmentsButtonLabel?: string | null;
+  /**
+   * Page address such as /contact, or a full address starting with https://
+   */
+  commitmentsButtonLink?: string | null;
+  /**
+   * The dark line of words that slides across the page, below the commitments.
+   */
+  marqueeTexts?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  processEyebrow?: string | null;
+  processTitleStart?: string | null;
+  /**
+   * The full stop after this word is added for you.
+   */
+  processTitleHighlight?: string | null;
+  /**
+   * Add, remove or reorder steps. The numbers (01, 02...) are added for you.
+   */
+  processSteps?:
+    | {
+        title: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Landscape photo (4 by 3), at least 1200 x 900 px. It is cropped to fit, never stretched.
+   */
+  partnerImage?: (number | null) | Media;
+  partnerTitle?: string | null;
+  partnerText?: string | null;
+  partnerButtonLabel?: string | null;
+  /**
+   * Page address such as /contact, or a full address starting with https://
+   */
+  partnerButtonLink?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -256,6 +490,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'products';
         value: number | Product;
+      } | null)
+    | ({
+        relationTo: 'homepage';
+        value: number | Homepage;
+      } | null)
+    | ({
+        relationTo: 'footer';
+        value: number | Footer;
+      } | null)
+    | ({
+        relationTo: 'about';
+        value: number | About;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -331,6 +577,7 @@ export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   description?: T;
+  image?: T;
   isActive?: T;
   sortOrder?: T;
   updatedAt?: T;
@@ -380,6 +627,148 @@ export interface ProductsSelect<T extends boolean = true> {
       };
   isActive?: T;
   sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage_select".
+ */
+export interface HomepageSelect<T extends boolean = true> {
+  heroSubtitle?: T;
+  heroTitle?: T;
+  heroBackgroundImage?: T;
+  heroDescription?: T;
+  heroButtons?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        style?: T;
+        id?: T;
+      };
+  scrollItems?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  runningTexts?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  collectionsTitleStart?: T;
+  collectionsTitleHighlight?: T;
+  collectionsTitleEnd?: T;
+  collectionsLinkLabel?: T;
+  collectionsLinkUrl?: T;
+  selectedPiecesTitle?: T;
+  craftTitleStart?: T;
+  craftTitleHighlight?: T;
+  craftDescription?: T;
+  craftBullets?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  craftMainImage?: T;
+  craftDetailImage?: T;
+  craftButtonLabel?: T;
+  craftButtonUrl?: T;
+  privateLabel?:
+    | T
+    | {
+        eyebrow?: T;
+        headingPlain?: T;
+        headingGold?: T;
+        description?: T;
+        buttonText?: T;
+        buttonLink?: T;
+        photo?: T;
+      };
+  materialsHeading?: T;
+  materialsList?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  ctaTitleStart?: T;
+  ctaTitleHighlight?: T;
+  ctaButtonLabel?: T;
+  ctaButtonLink?: T;
+  ctaEmail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  logo?: T;
+  tagline?: T;
+  description?: T;
+  email?: T;
+  website?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "about_select".
+ */
+export interface AboutSelect<T extends boolean = true> {
+  titleLine1?: T;
+  titleLine2Start?: T;
+  titleHighlight?: T;
+  intro?: T;
+  storyLabel?: T;
+  storyImage?: T;
+  storyParagraphs?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  quote?: T;
+  commitmentsEyebrow?: T;
+  commitmentsTitleEnd?: T;
+  commitmentsHighlight?: T;
+  commitments?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  commitmentsButtonLabel?: T;
+  commitmentsButtonLink?: T;
+  marqueeTexts?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  processEyebrow?: T;
+  processTitleStart?: T;
+  processTitleHighlight?: T;
+  processSteps?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        id?: T;
+      };
+  partnerImage?: T;
+  partnerTitle?: T;
+  partnerText?: T;
+  partnerButtonLabel?: T;
+  partnerButtonLink?: T;
   updatedAt?: T;
   createdAt?: T;
 }

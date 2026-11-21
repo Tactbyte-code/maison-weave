@@ -8,6 +8,9 @@ import sharp from "sharp";
 import { Categories } from "./src/collections/Categories";
 import { Media } from "./src/collections/Media";
 import { Products } from "./src/collections/Products";
+import { Home } from "@/collections/Home";
+import { Footer } from "@/collections/Footer";
+import { About } from "@/collections/About";
 
 export default buildConfig({
   admin: {
@@ -32,6 +35,9 @@ export default buildConfig({
     Categories,
     Media,
     Products,
+    Home,
+    Footer,
+    About,
   ],
 
   plugins: [

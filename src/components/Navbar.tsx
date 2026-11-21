@@ -71,7 +71,11 @@ export function Navbar() {
             className="shrink-0"
           >
             <Image
-              src="/assets/images/logos/logo.png"
+              src={
+                isTransparent
+                  ? "/assets/images/logos/logo-gold.png"
+                  : "/assets/images/logos/logo.png"
+              }
               alt="Maison Weave"
               width={401}
               height={210}
@@ -157,7 +161,7 @@ export function Navbar() {
           >
             <div className="flex items-center justify-between">
               <Image
-                src="/assets/images/logos/logo.png"
+                src="/assets/images/logos/logo-gold.png"
                 alt="Maison Weave"
                 width={401}
                 height={210}

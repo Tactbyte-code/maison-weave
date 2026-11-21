@@ -1,6 +1,10 @@
+'use client';
+
 import Link from 'next/link';
 import { ArrowUpRight, Globe, Mail } from 'lucide-react';
 import { MaisonLogo } from './MaisonMark';
+import { usePayloadCategoriesQuery } from '@/hooks/usePayloadCategories';
+import { usePayloadFooterQuery } from '@/hooks/usePayloadFooter';
 
 const EXPLORE_LINKS = [
   { to: '/', label: 'Home', id: 'home' },
@@ -10,16 +14,30 @@ const EXPLORE_LINKS = [
   { to: '/portal', label: 'Partner Portal', id: 'portal' },
 ];
 
-const FOOTER_COLLECTIONS = [
-  'Table Linen',
-  'Cushion Covers',
-  'Rugs',
-  'Jute Products',
-  'Water Hyacinth',
-];
+const FALLBACK = {
+  tagline: 'Crafted Luxury Living',
+  description:
+    'Manufacturer and exporter of home textiles and home decor, creating crafted collections for brands, retailers and hospitality partners worldwide.',
+  email: 'jayant@maisonweave.com',
+  website: 'https://maisonweave.com',
+  note: 'B2B enquiries welcome — private label, wholesale and hospitality supply.',
+};
 
 export function Footer() {
   const year = new Date().getFullYear();
+
+  const { data: footer } = usePayloadFooterQuery();
+  const { data: categories } = usePayloadCategoriesQuery();
+
+  const footerCategories = (categories ?? []).slice(0, 5);
+  const tagline = footer?.tagline ?? FALLBACK.tagline;
+  const email = footer?.email ?? FALLBACK.email;
+  const website = footer?.website ?? FALLBACK.website;
+  const websiteLabel = website.replace(/^https?:\/\//, '').replace(/\/$/, '');
+  const logo = footer?.logo;
+  const logoUrl = typeof logo === 'object' && logo?.url ? logo.url : '';
+  const logoAlt =
+    typeof logo === 'object' && logo?.alt ? logo.alt : 'Maison Weave';
 
   return (
     <footer data-testid="site-footer" className="bg-forest-night text-cream">
@@ -45,11 +63,14 @@ export function Footer() {
 
       <div className="shell grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <MaisonLogo dark />
+          <MaisonLogo
+            dark
+            sublineText={tagline.toUpperCase()}
+            markUrl={logoUrl}
+            markAlt={logoAlt}
+          />
           <p className="mt-6 max-w-xs text-sm leading-relaxed text-cream/60">
-            Manufacturer and exporter of home textiles and home decor, creating
-            crafted collections for brands, retailers and hospitality partners
-            worldwide.
+            {footer?.description ?? FALLBACK.description}
           </p>
         </div>
 
@@ -73,16 +94,14 @@ export function Footer() {
         <div>
           <p className="eyebrow-light">Collections</p>
           <ul className="mt-6 space-y-3">
-            {FOOTER_COLLECTIONS.map((category) => (
-              <li key={category}>
+            {footerCategories.map((category) => (
+              <li key={category.id}>
                 <Link
-                  href={`/collections?category=${encodeURIComponent(category)}`}
-                  data-testid={`footer-link-collection-${category
-                    .toLowerCase()
-                    .replace(/[^a-z]+/g, '-')}`}
+                  href={`/collections?category=${category.slug}`}
+                  data-testid={`footer-link-collection-${category.slug}`}
                   className="text-sm text-cream/70 transition-colors duration-300 hover:text-gold"
                 >
-                  {category}
+                  {category.name}
                 </Link>
               </li>
             ))}
@@ -104,29 +123,28 @@ export function Footer() {
             <li className="flex items-center gap-3">
               <Mail className="h-4 w-4 shrink-0 text-gold" />
               <a
-                href="mailto:jayant@maisonweave.com"
+                href={`mailto:${email}`}
                 data-testid="footer-email-link"
                 className="transition-colors duration-300 hover:text-gold"
               >
-                jayant@maisonweave.com
+                {email}
               </a>
             </li>
             <li className="flex items-center gap-3">
               <Globe className="h-4 w-4 shrink-0 text-gold" />
               <a
-                href="https://maisonweave.com"
+                href={website}
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="footer-domain-link"
                 className="transition-colors duration-300 hover:text-gold"
               >
-                maisonweave.com
+                {websiteLabel}
               </a>
             </li>
           </ul>
           <p className="mt-6 text-xs leading-relaxed text-cream/40">
-            B2B enquiries welcome — private label, wholesale and hospitality
-            supply.
+            {footer?.note ?? FALLBACK.note}
           </p>
         </div>
       </div>
@@ -137,7 +155,7 @@ export function Footer() {
             &copy; {year} Maison Weave
           </p>
           <p className="font-serif text-sm italic text-cream/50">
-            Crafted Luxury Living
+            {tagline}
           </p>
         </div>
       </div>

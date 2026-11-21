@@ -88,7 +88,8 @@ export const Products: CollectionConfig = {
       defaultValue: 0,
       admin: {
         position: "sidebar",
-        description: "Lower numbers appear first.",
+                description:
+          "Lower numbers appear first. The first 4 active products also appear in 'Selected pieces' on the homepage.",
       },
     },
   ],

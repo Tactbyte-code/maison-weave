@@ -35,12 +35,29 @@ export function MaisonMark({ className = 'h-9 w-12', dark = false }: MaisonMarkP
 interface MaisonLogoProps {
   dark?: boolean;
   subline?: boolean;
+  sublineText?: string;
+  markUrl?: string;
+  markAlt?: string;
 }
 
-export function MaisonLogo({ dark = false, subline = true }: MaisonLogoProps) {
+export function MaisonLogo({
+  dark = false,
+  subline = true,
+  sublineText = 'CRAFTED LUXURY LIVING',
+  markUrl = '',
+  markAlt = '',
+}: MaisonLogoProps) {
   return (
     <span className="inline-flex items-center gap-3 whitespace-nowrap shrink-0">
-      <MaisonMark className="h-9 w-12 shrink-0" dark={dark} />
+      {markUrl ? (
+        <img
+          src={markUrl}
+          alt={markAlt}
+          className="h-9 w-auto max-w-12 shrink-0 object-contain"
+        />
+      ) : (
+        <MaisonMark className="h-9 w-12 shrink-0" dark={dark} />
+      )}
       <span className="leading-none">
         <span
           className={`block font-serif text-[17px] font-medium tracking-[0.3em] ${
@@ -51,7 +68,7 @@ export function MaisonLogo({ dark = false, subline = true }: MaisonLogoProps) {
         </span>
         {subline && (
           <span className="mt-1.5 block font-mono text-[8px] tracking-[0.44em] text-gold-deep">
-            CRAFTED LUXURY LIVING
+            {sublineText}
           </span>
         )}
       </span>
